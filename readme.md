@@ -35,6 +35,6 @@ url.toString(); // https://example.com:8080/next-page?foo=bar
    such as `origin` and `hostname`.
 2. `searchParams` accept `set`/`unset` collections. `unset` is higher precedence.
 3. Stringy-fields can be cleared by passing the empty string.
-4. Browser and node.js friendly. (warn: npm unpacked size is not correct)
+4. Browser and node.js friendly.
 
 See [the tests](./src/index.test.ts) for more examples.
