@@ -1,5 +1,7 @@
 # whatwg-url-fns
 
+Delightful WHATWG URL transform functions.
+
 Given a [URL](https://url.spec.whatwg.org/#url), produce another safely and concisely.
 
 ## install
@@ -14,12 +16,17 @@ npm install --save whatwg-url-fns
 ```ts
 import { transform } from "whatwg-url-fns";
 
-const currentURL = new URL("https://example.com:8080/path?baz=1#hash");
-
-const nextURL = transform({
-  pathname: "/next-page",
-  hash: "",
-  searchParams: { set: { foo: "bar" }, unset: ["baz"] },
-});
-nextURL.toString(); // https://example.com:8080/next-page?baz=1&foo=bar
+const nextURL = transform(
+  {
+    pathname: "/next-page",
+    hash: "",
+    searchParams: { set: { foo: "bar" }, unset: ["baz"] },
+  },
+  /**
+   * The URL to transform from. Accepts a string (e.g. window.location.href)
+   * or a URL instance.
+   */
+  "https://example.com:8080/path?baz=1#hash"
+);
+nextURL.toString(); // https://example.com:8080/next-page?foo=bar
 ```

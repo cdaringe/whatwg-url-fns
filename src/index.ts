@@ -53,7 +53,14 @@ export const getUnPwPart = (un?: string, pw?: string): string => {
   return `${[un, pw].filter(Boolean).join(":")}@`;
 };
 
-export const transform = (options: URLBuilderInput, currentURL: URL): URL => {
+export const transform = (
+  options: URLBuilderInput,
+  currentURLInput: URL | string
+): URL => {
+  const currentURL =
+    typeof currentURLInput === "string"
+      ? new URL(currentURLInput)
+      : currentURLInput;
   const nextUrlParts = {
     // direct update fields
     hash:
