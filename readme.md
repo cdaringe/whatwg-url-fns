@@ -24,7 +24,7 @@ const url: URL = transform(
     pathname: "/next-page",
     hash: "", // clear out the hash
     searchParams: { set: { foo: "bar" }, unset: ["baz"] },
-  }
+  },
 );
 url.toString(); // https://example.com:8080/next-page?foo=bar
 ```
