@@ -1,6 +1,9 @@
 !**/*
-!dist
-dist/**/*.test.*
 *.json
 node_modules
 .*
+./*.ts
+coverage
+src
+!dist
+dist/**/*.test.*
