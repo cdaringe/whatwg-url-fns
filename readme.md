@@ -4,6 +4,8 @@ Delightful WHATWG URL transform functions.
 
 Given a [URL](https://url.spec.whatwg.org/#url), produce another safely and concisely, declaring the next fields to applied to the existing URL.
 
+[![CI](https://github.com/cdaringe/whatwg-url-fns/actions/workflows/main.yml/badge.svg)](https://github.com/cdaringe/whatwg-url-fns/actions/workflows/main.yml)
+
 ## install
 
 ```ts
