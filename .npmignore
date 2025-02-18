@@ -1,0 +1,6 @@
+!**/*
+!dist
+dist/**/*.test.*
+*.json
+node_modules
+.*

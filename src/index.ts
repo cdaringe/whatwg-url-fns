@@ -1,0 +1,136 @@
+type URLBuilderCommon<
+  SearchParams extends Record<string, any> = Record<string, any>
+> = {
+  pathname?: string;
+  hash?: string;
+  username?: string;
+  password?: string;
+  searchParams?: {
+    set?: Partial<SearchParams>;
+    unset?: (keyof SearchParams)[];
+  };
+};
+
+type URLBuilderOriginOriginMode = URLBuilderCommon & {
+  origin: string; // proto + hostname + port
+};
+
+type URLBuilderOriginHostMode = URLBuilderCommon & {
+  protocol?: string;
+  host: string; // hostname + port
+};
+
+type URLBuilderOriginProtocolHostnameMode = URLBuilderCommon & {
+  protocol?: string;
+  hostname: string;
+  port?: string;
+};
+
+type URLBuilderOriginHostnamelessMode = URLBuilderCommon & {
+  protocol?: string;
+  port?: string;
+};
+
+/**
+ * URLs are composites of multiple parts. We also have
+ * terms for composite subparts. For example, `host` is
+ * `hostname + port`, while `origin` is `proto + hostname + port`.
+ * All of these are valueable and good DX to use dependent
+ * on cirmcumstance. However, offering an API accepting
+ * both `port` and `origin` simultaneously allows unreconcilable states,
+ * as there is no clear output for `port`.
+ * Thus, we make conflicting inputs unrepresentable by unioning
+ * out all of the feasible inputs.
+ */
+type URLBuilderInput =
+  | URLBuilderOriginOriginMode
+  | URLBuilderOriginHostMode
+  | URLBuilderOriginProtocolHostnameMode
+  | URLBuilderOriginHostnamelessMode;
+
+export const getUnPwPart = (un?: string, pw?: string): string => {
+  if (!un) return "";
+  return `${[un, pw].filter(Boolean).join(":")}@`;
+};
+
+export const transform = (options: URLBuilderInput, currentURL: URL): URL => {
+  const nextUrlParts = {
+    // direct update fields
+    hash:
+      options.hash == null
+        ? currentURL.hash
+        : options.hash
+        ? `#${options.hash}`
+        : "",
+    pathname: options.pathname ?? currentURL.pathname,
+    password: options.password ?? currentURL.password,
+    username: options.username ?? currentURL.username,
+
+    // these fields are updated by our origin
+    // discrimnator handling
+    hostname: currentURL.hostname,
+    protocol: currentURL.protocol,
+    port: currentURL.port,
+  };
+
+  const updateHostnameAndPortFromHostField = (host: string) => {
+    const [hostname, port] = host.split(":");
+    if (hostname) nextUrlParts.hostname = hostname;
+    if (port && port.length) nextUrlParts.port = port;
+  };
+
+  const applyProtoAndPort = <I extends { protocol?: string; port?: string }>(
+    input: I
+  ) => {
+    (["protocol", "port"] as const).forEach((fieldName) => {
+      if (input[fieldName] != null) nextUrlParts[fieldName] = input[fieldName];
+    });
+  };
+
+  // case: handle protocol + hostname + port updates
+  if ("origin" in options) {
+    // case: URLBuilderOriginOriginMode
+    const [protocol, host] = options.origin.split("//");
+    if (protocol) nextUrlParts.protocol = protocol;
+    if (host) updateHostnameAndPortFromHostField(host);
+  } else if ("host" in options) {
+    // case: URLBuilderOriginHostMode
+    if (options.protocol) nextUrlParts.protocol = options.protocol;
+    updateHostnameAndPortFromHostField(options.host);
+  } else if ("hostname" in options) {
+    // case: URLBuilderOriginProtocolHostnameMode
+    nextUrlParts.hostname = options.hostname;
+    applyProtoAndPort(options);
+  } else {
+    // case: URLBuilderOriginHostnamelessMode;
+    applyProtoAndPort(options);
+  }
+
+  // Handle username/password
+  const unPwPart = getUnPwPart(nextUrlParts.username, nextUrlParts.password);
+
+  // Construct the URL
+  const assembledBaseURLString = [
+    nextUrlParts.protocol,
+    "//",
+    unPwPart,
+    nextUrlParts.hostname,
+    nextUrlParts.port ? `:${nextUrlParts.port}` : "",
+    nextUrlParts.pathname,
+    currentURL.search, // fear not, we'll update this momentarily
+    nextUrlParts.hash,
+  ].join("");
+  const nextURL = new URL(assembledBaseURLString);
+
+  // Handle search params if provided
+  if (options.searchParams) {
+    Object.entries(options.searchParams.set ?? {}).forEach(([key, value]) => {
+      nextURL.searchParams.set(key, value);
+    });
+    (options.searchParams.unset ?? []).forEach((key) => {
+      nextURL.searchParams.delete(String(key));
+    });
+  }
+
+  return nextURL;
+};
