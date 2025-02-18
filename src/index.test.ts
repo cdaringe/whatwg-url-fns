@@ -8,16 +8,13 @@ describe("URL Transformer", () => {
 
   describe("origin input", () => {
     it("should update urls", () => {
-      const nextURL = transform(
-        {
-          pathname: "/next-page",
-          hash: "",
-          searchParams: { set: { foo: "bar" }, unset: ["baz"] },
-        },
-        new URL("https://example.com:8080/path?baz=1#hash")
-      );
+      const nextURL = transform("https://example.com:8080/path?baz=1#hash", {
+        pathname: "/next-page",
+        hash: "",
+        searchParams: { set: { foo: "bar" }, unset: ["baz"] },
+      });
       expect(nextURL.href).toMatchInlineSnapshot(
-        `"https://example.com:8080/next-page?foo=bar"`
+        `"https://example.com:8080/next-page?foo=bar"`,
       );
     });
 
@@ -50,7 +47,7 @@ describe("URL Transformer", () => {
       ];
 
       cases.forEach(({ input, expected }) => {
-        const result = transform(input, createBaseURL());
+        const result = transform(createBaseURL(), input);
         expect(result.href).toBe(expected);
       });
     });
@@ -79,7 +76,7 @@ describe("URL Transformer", () => {
       ];
 
       cases.forEach(({ input, expected }) => {
-        const result = transform(input, createBaseURL());
+        const result = transform(createBaseURL(), input);
         expect(result.href).toBe(expected);
       });
     });
@@ -109,7 +106,7 @@ describe("URL Transformer", () => {
       ];
 
       cases.forEach(({ input, expected }) => {
-        const result = transform(input, createBaseURL());
+        const result = transform(createBaseURL(), input);
         expect(result.href).toBe(expected);
       });
     });
@@ -138,7 +135,7 @@ describe("URL Transformer", () => {
       ];
 
       cases.forEach(({ input, expected }) => {
-        const result = transform(input, createBaseURL());
+        const result = transform(createBaseURL(), input);
         expect(result.href).toBe(expected);
       });
     });
@@ -170,7 +167,7 @@ describe("URL Transformer", () => {
       ];
 
       cases.forEach(({ input, expected }) => {
-        const result = transform(input, createBaseURL());
+        const result = transform(createBaseURL(), input);
         expect(result.href).toBe(expected);
       });
     });
@@ -217,7 +214,7 @@ describe("URL Transformer", () => {
       ];
 
       cases.forEach(({ input, expected }) => {
-        const result = transform(input, createBaseURL());
+        const result = transform(createBaseURL(), input);
         expect(result.href).toBe(expected);
       });
     });
@@ -253,7 +250,7 @@ describe("URL Transformer", () => {
       ];
 
       cases.forEach(({ input, expected }) => {
-        const result = transform(input, createBaseURL());
+        const result = transform(createBaseURL(), input);
         expect(result.href).toBe(expected);
       });
     });
@@ -261,27 +258,21 @@ describe("URL Transformer", () => {
 
   describe("Edge Cases", () => {
     it("should handle empty port strings", () => {
-      const result = transform(
-        {
-          hostname: "example.com",
-          port: "",
-          username: "",
-          password: "",
-        },
-        createBaseURL()
-      );
+      const result = transform(createBaseURL(), {
+        hostname: "example.com",
+        port: "",
+        username: "",
+        password: "",
+      });
       expect(result.href).toBe("https://example.com/path?q=123#hash");
     });
 
     it("should preserve existing values when not specified", () => {
-      const result = transform(
-        {
-          protocol: "http:",
-          username: "",
-          password: "",
-        },
-        createBaseURL()
-      );
+      const result = transform(createBaseURL(), {
+        protocol: "http:",
+        username: "",
+        password: "",
+      });
       expect(result.href).toBe("http://example.com:8080/path?q=123#hash");
     });
   });

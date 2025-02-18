@@ -1,9 +1,9 @@
 name: CI
 on:
   push:
-    branches: ['**']
+    branches: ["**"]
   pull_request:
-    branches: ['**']
+    branches: ["**"]
 
 permissions:
   contents: write
@@ -38,6 +38,9 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install
+
+      - name: format:check
+        run: pnpm run format:check
 
       - name: build
         run: pnpm run build

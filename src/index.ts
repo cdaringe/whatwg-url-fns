@@ -1,5 +1,5 @@
 type URLBuilderCommon<
-  SearchParams extends Record<string, any> = Record<string, any>
+  SearchParams extends Record<string, any> = Record<string, any>,
 > = {
   pathname?: string;
   hash?: string;
@@ -54,19 +54,18 @@ export const getUnPwPart = (un?: string, pw?: string): string => {
 };
 
 export const transform = (
+  currentURLInput: URL | string,
   options: URLBuilderInput,
-  currentURLInput: URL | string
 ): URL => {
   const currentURL =
     typeof currentURLInput === "string"
       ? new URL(currentURLInput)
       : currentURLInput;
   const nextUrlParts = {
-    // direct update fields
-    hash:
-      options.hash == null
-        ? currentURL.hash
-        : options.hash
+    // directly update fields
+    hash: isEmpty(options.hash)
+      ? currentURL.hash
+      : options.hash
         ? `#${options.hash}`
         : "",
     pathname: options.pathname ?? currentURL.pathname,
@@ -87,7 +86,7 @@ export const transform = (
   };
 
   const applyProtoAndPort = <I extends { protocol?: string; port?: string }>(
-    input: I
+    input: I,
   ) => {
     (["protocol", "port"] as const).forEach((fieldName) => {
       if (input[fieldName] != null) nextUrlParts[fieldName] = input[fieldName];
@@ -98,8 +97,8 @@ export const transform = (
   if ("origin" in options) {
     // case: URLBuilderOriginOriginMode
     const [protocol, host] = options.origin.split("//");
-    if (protocol) nextUrlParts.protocol = protocol;
-    if (host) updateHostnameAndPortFromHostField(host);
+    nextUrlParts.protocol = protocol!;
+    updateHostnameAndPortFromHostField(host!);
   } else if ("host" in options) {
     // case: URLBuilderOriginHostMode
     if (options.protocol) nextUrlParts.protocol = options.protocol;
@@ -141,3 +140,7 @@ export const transform = (
 
   return nextURL;
 };
+
+export function isEmpty<T>(x: T): x is T & ([] | {} | "") {
+  return x == null;
+}
