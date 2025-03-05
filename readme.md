@@ -25,7 +25,11 @@ const url: URL = transform(
   {
     pathname: "/next-page",
     hash: "", // clear out the hash
-    searchParams: { set: { foo: "bar" }, unset: ["baz"] },
+    searchParams: {
+      set: { foo: "bar" },
+      unset: ["baz"],
+      // [clear: true] // empty the searchParams before running set operations
+    },
   },
 );
 url.toString(); // https://example.com:8080/next-page?foo=bar
@@ -33,7 +37,7 @@ url.toString(); // https://example.com:8080/next-page?foo=bar
 
 1. The implementation is thoughtfully typed and prevents conflicting URL inputs,
    such as `origin` and `hostname`.
-2. `searchParams` accept `set`/`unset` collections. `unset` is higher precedence.
+2. `searchParams` accept `set`/`unset/clear` collections. Precedence matters. `clear` occurs first, then `set`, then `unset`.
 3. Stringy-fields can be cleared by passing the empty string.
 4. Browser and node.js friendly.
 

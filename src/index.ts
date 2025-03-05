@@ -6,6 +6,7 @@ type URLBuilderCommon<
   username?: string;
   password?: string;
   searchParams?: {
+    clear?: boolean;
     set?: Partial<SearchParams>;
     unset?: (keyof SearchParams)[];
   };
@@ -129,11 +130,17 @@ export const transform = (
   const nextURL = new URL(assembledBaseURLString);
 
   // Handle search params if provided
-  if (options.searchParams) {
-    Object.entries(options.searchParams.set ?? {}).forEach(([key, value]) => {
+  const optionsParams = options.searchParams;
+  if (optionsParams) {
+    if (optionsParams.clear) {
+      nextURL.searchParams.forEach((_v, key) =>
+        nextURL.searchParams.delete(key),
+      );
+    }
+    Object.entries(optionsParams.set ?? {}).forEach(([key, value]) => {
       nextURL.searchParams.set(key, value);
     });
-    (options.searchParams.unset ?? []).forEach((key) => {
+    (optionsParams.unset ?? []).forEach((key) => {
       nextURL.searchParams.delete(String(key));
     });
   }

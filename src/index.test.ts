@@ -211,6 +211,18 @@ describe("URL Transformer", () => {
           },
           expected: "https://example.com:8080/path?new=param#hash",
         },
+        {
+          input: {
+            hostname: "example.com",
+            username: "",
+            password: "",
+            searchParams: {
+              clear: true,
+              set: { foo: "bar" },
+            },
+          },
+          expected: "https://example.com:8080/path?foo=bar#hash",
+        },
       ];
 
       cases.forEach(({ input, expected }) => {
