@@ -5,11 +5,13 @@ type URLBuilderCommon<
   hash?: string;
   username?: string;
   password?: string;
-  searchParams?: {
-    clear?: boolean;
-    set?: Partial<SearchParams>;
-    unset?: (keyof SearchParams)[];
-  };
+  searchParams?:
+    | {
+        clear?: boolean;
+        set?: Partial<SearchParams>;
+        unset?: (keyof SearchParams)[];
+      }
+    | URLSearchParams;
 };
 
 type URLBuilderOriginOriginMode = URLBuilderCommon & {
@@ -132,15 +134,13 @@ export const transform = (
   // Handle search params if provided
   const optionsParams = options.searchParams;
   if (optionsParams) {
-    if (optionsParams.clear) {
-      nextURL.searchParams.forEach((_v, key) =>
-        nextURL.searchParams.delete(key),
-      );
+    if ("clear" in optionsParams && optionsParams.clear) {
+      nextURL.search = "";
     }
     Object.entries(optionsParams.set ?? {}).forEach(([key, value]) => {
       nextURL.searchParams.set(key, value);
     });
-    (optionsParams.unset ?? []).forEach((key) => {
+    (("unset" in optionsParams && optionsParams.unset) || []).forEach((key) => {
       nextURL.searchParams.delete(String(key));
     });
   }
