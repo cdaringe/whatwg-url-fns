@@ -223,6 +223,17 @@ describe("URL Transformer", () => {
           },
           expected: "https://example.com:8080/path?foo=bar#hash",
         },
+        {
+          input: {
+            hostname: "example.com",
+            username: "",
+            pathnaum: "/bing",
+            searchParams: {
+              clear: true,
+            },
+          },
+          expected: "https://example.com:8080/path#hash",
+        },
       ];
 
       cases.forEach(({ input, expected }) => {
@@ -286,6 +297,16 @@ describe("URL Transformer", () => {
         password: "",
       });
       expect(result.href).toBe("http://example.com:8080/path?q=123#hash");
+    });
+    it("verbose test", () => {
+      const out = transform(
+        "https://exampl.com/exampllive/gleb?foo=bar&baz=qux",
+        {
+          pathname: "/bing/bing",
+          searchParams: { clear: true },
+        },
+      );
+      expect(out.toString()).toBe("https://exampl.com/bing/bing");
     });
   });
 });
