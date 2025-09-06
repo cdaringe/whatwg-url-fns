@@ -23,7 +23,7 @@ import { transform } from "whatwg-url-fns";
 const url: URL = transform(
   "https://example.com:8080/path?baz=1#hash", // URL | string
   {
-    pathname: "/next-page",
+    pathname: "/next-page", // or { append: "/next-page" } // yields /path/next-page
     hash: "", // clear out the hash
     searchParams: {
       set: { foo: "bar" },
