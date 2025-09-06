@@ -71,11 +71,10 @@ export const transform = (
       : options.hash
         ? `#${options.hash}`
         : "",
-    pathname: prefixSlash(
+    pathname:
       typeof options.pathname === "object" && "append" in options.pathname
         ? joinPathnames(currentURL.pathname, options.pathname.append)
         : (options.pathname ?? currentURL.pathname),
-    ),
     password: options.password ?? currentURL.password,
     username: options.username ?? currentURL.username,
 

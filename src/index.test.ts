@@ -193,7 +193,7 @@ describe("URL Transformer", () => {
         input: { pathname: { append: "" } },
         expected: "https://example.com/api",
       },
-            {
+      {
         input: { pathname: { append: "/foo/bar/baz" } },
         expected: "https://example.com/api/foo/bar/baz",
       },
