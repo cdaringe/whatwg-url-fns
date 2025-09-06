@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { transform } from "./index";
+import { transform, joinPathnames } from "./index";
 
 describe("URL Transformer", () => {
   // Helper function to create a base URL for testing
@@ -140,7 +140,6 @@ describe("URL Transformer", () => {
       });
     });
   });
-
   describe("pathname & hash", () => {
     it("should handle pathname and hash updates", () => {
       const cases = [
@@ -170,6 +169,39 @@ describe("URL Transformer", () => {
         const result = transform(createBaseURL(), input);
         expect(result.href).toBe(expected);
       });
+    });
+
+    const baseURL = "https://example.com/api";
+    const cases = [
+      {
+        input: { pathname: { append: "/users" } },
+        expected: "https://example.com/api/users",
+      },
+      {
+        input: { pathname: { append: "users" } },
+        expected: "https://example.com/api/users",
+      },
+      {
+        input: { pathname: { append: "//users" } },
+        expected: "https://example.com/api/users",
+      },
+      {
+        input: { pathname: { append: "/users/" } },
+        expected: "https://example.com/api/users/",
+      },
+      {
+        input: { pathname: { append: "" } },
+        expected: "https://example.com/api",
+      },
+            {
+        input: { pathname: { append: "/foo/bar/baz" } },
+        expected: "https://example.com/api/foo/bar/baz",
+      },
+    ] as const;
+
+    it.each(cases)(`pathname append ($input.pathname.append)`, (it) => {
+      const result = transform(baseURL, it.input);
+      expect(result.href).toBe(it.expected);
     });
   });
 
@@ -307,6 +339,43 @@ describe("URL Transformer", () => {
         },
       );
       expect(out.toString()).toBe("https://exampl.com/bing/bing");
+    });
+  });
+
+  describe("joinPathnames utility function", () => {
+    it("should handle basic path joining", () => {
+      expect(joinPathnames("/api", "users")).toBe("/api/users");
+      expect(joinPathnames("/api/", "/users")).toBe("/api/users");
+      expect(joinPathnames("/api", "/users")).toBe("/api/users");
+      expect(joinPathnames("/api/", "users")).toBe("/api/users");
+    });
+
+    it("should handle multiple slashes", () => {
+      expect(joinPathnames("//api//", "//users//")).toBe("/api/users//");
+      expect(joinPathnames("/api///", "///users")).toBe("/api/users");
+    });
+
+    it("should handle root paths", () => {
+      expect(joinPathnames("/", "users")).toBe("/users");
+      expect(joinPathnames("/", "/users")).toBe("/users");
+      expect(joinPathnames("/", "")).toBe("/");
+      expect(joinPathnames("", "/users")).toBe("/users");
+      expect(joinPathnames("", "users")).toBe("/users");
+    });
+
+    it("should handle empty strings and edge cases for coverage", () => {
+      expect(joinPathnames("", "")).toBe("/");
+      expect(joinPathnames("/api/", "")).toBe("/api/"); // Test line 78 (startsWithSlash true, preserves original behavior)
+      expect(joinPathnames("", "/users")).toBe("/users");
+      expect(joinPathnames("api/", "")).toBe("/api/"); // Test line 78 (startsWithSlash false)
+    });
+
+    it("should handle edge cases mentioned in requirements", () => {
+      // Cases: ("/", "/"), ("a", "/b"), ("/a", "b"), ("//a", "b/")
+      expect(joinPathnames("/", "/")).toBe("/");
+      expect(joinPathnames("a", "/b")).toBe("/a/b");
+      expect(joinPathnames("/a", "b")).toBe("/a/b");
+      expect(joinPathnames("//a", "b/")).toBe("/a/b/");
     });
   });
 });

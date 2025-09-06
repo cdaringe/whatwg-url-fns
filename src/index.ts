@@ -1,7 +1,7 @@
 type URLBuilderCommon<
   SearchParams extends Record<string, any> = Record<string, any>,
 > = {
-  pathname?: string;
+  pathname?: string | { append: string };
   hash?: string;
   username?: string;
   password?: string;
@@ -71,7 +71,11 @@ export const transform = (
       : options.hash
         ? `#${options.hash}`
         : "",
-    pathname: options.pathname ?? currentURL.pathname,
+    pathname: prefixSlash(
+      typeof options.pathname === "object" && "append" in options.pathname
+        ? joinPathnames(currentURL.pathname, options.pathname.append)
+        : (options.pathname ?? currentURL.pathname),
+    ),
     password: options.password ?? currentURL.password,
     username: options.username ?? currentURL.username,
 
@@ -125,7 +129,7 @@ export const transform = (
     unPwPart,
     nextUrlParts.hostname,
     nextUrlParts.port ? `:${nextUrlParts.port}` : "",
-    nextUrlParts.pathname,
+    nextUrlParts.pathname, // ensure leading slash
     currentURL.search, // fear not, we'll update this momentarily
     nextUrlParts.hash,
   ].join("");
@@ -147,6 +151,19 @@ export const transform = (
 
   return nextURL;
 };
+
+export const joinPathnames = (base: string, append: string): string => {
+  const _joinPathnames = () => {
+    if (!append) return base;
+    if (!base) return append;
+    const cleanBase = base.replace(/\/+$/, "").replace(/^\/+/, "");
+    const cleanAppend = append.replace(/^\/+/, "");
+    return [cleanBase, cleanAppend].filter(Boolean).join("/");
+  };
+  return prefixSlash(_joinPathnames());
+};
+
+const prefixSlash = (s: string) => (s.startsWith("/") ? s : `/${s}`);
 
 export function isEmpty<T>(x: T): x is T & ([] | {} | "") {
   return x == null;
