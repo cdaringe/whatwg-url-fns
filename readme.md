@@ -2,7 +2,8 @@
 
 Delightful WHATWG URL transform functions.
 
-Given a [URL](https://url.spec.whatwg.org/#url), produce another URL safely and concisely, declaring the _next_ fields to apply over the provided URL.
+Given a [URL](https://url.spec.whatwg.org/#url), produce another URL safely and concisely, declaring the _next_ fields to apply over the provided URL. Dependency free. Practical successor
+to node's original `url` module.
 
 [![CI](https://github.com/cdaringe/whatwg-url-fns/actions/workflows/main.yml/badge.svg)](https://github.com/cdaringe/whatwg-url-fns/actions/workflows/main.yml)
 
