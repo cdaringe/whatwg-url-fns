@@ -8,7 +8,7 @@ type URLBuilderCommon<
   searchParams?:
     | {
         clear?: boolean;
-        set?: Partial<SearchParams>;
+        set?: Partial<Record<keyof SearchParams, string | string[]>>;
         unset?: (keyof SearchParams)[];
       }
     | URLSearchParams;
@@ -141,7 +141,12 @@ export const transform = (
       nextURL.search = "";
     }
     Object.entries(optionsParams.set ?? {}).forEach(([key, value]) => {
-      nextURL.searchParams.set(key, value);
+      if (Array.isArray(value)) {
+        nextURL.searchParams.delete(key);
+        value.forEach((v) => nextURL.searchParams.append(key, v));
+      } else {
+        nextURL.searchParams.set(key, value);
+      }
     });
     (("unset" in optionsParams && optionsParams.unset) || []).forEach((key) => {
       nextURL.searchParams.delete(String(key));

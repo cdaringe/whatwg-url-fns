@@ -28,6 +28,10 @@
     "functions",
     "fns"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cdaringe/whatwg-url-fns.git"
+  },
   "author": "cdaringe",
   "license": "MIT",
   "devDependencies": {

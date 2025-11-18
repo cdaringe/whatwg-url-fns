@@ -273,6 +273,62 @@ describe("URL Transformer", () => {
         expect(result.href).toBe(expected);
       });
     });
+
+    it("should handle multiple occurrences of query parameters", () => {
+      const cases = [
+        {
+          input: {
+            hostname: "example.com",
+            username: "",
+            password: "",
+            searchParams: {
+              clear: true,
+              set: { foo: ["bar", "qux"] },
+            },
+          },
+          expected: "https://example.com:8080/path?foo=bar&foo=qux#hash",
+        },
+        {
+          input: {
+            hostname: "example.com",
+            username: "",
+            password: "",
+            searchParams: {
+              set: { tag: ["typescript", "url", "whatwg"] },
+            },
+          },
+          expected:
+            "https://example.com:8080/path?q=123&tag=typescript&tag=url&tag=whatwg#hash",
+        },
+        {
+          input: {
+            hostname: "example.com",
+            username: "",
+            password: "",
+            searchParams: {
+              set: { foo: "single" },
+            },
+          },
+          expected: "https://example.com:8080/path?q=123&foo=single#hash",
+        },
+        {
+          input: {
+            hostname: "example.com",
+            username: "",
+            password: "",
+            searchParams: {
+              set: { a: "1", b: ["2", "3"] },
+            },
+          },
+          expected: "https://example.com:8080/path?q=123&a=1&b=2&b=3#hash",
+        },
+      ];
+
+      cases.forEach(({ input, expected }) => {
+        const result = transform(createBaseURL(), input);
+        expect(result.href).toBe(expected);
+      });
+    });
   });
 
   describe("Username/Password Tests", () => {
